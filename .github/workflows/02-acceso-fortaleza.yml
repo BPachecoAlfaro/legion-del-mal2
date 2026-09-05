@@ -26,4 +26,4 @@ jobs:
           echo "Villanos:"
           ls miembros/
           echo "Inteligencia:"
-          ls Inteligencia/
+          ls inteligencia/
