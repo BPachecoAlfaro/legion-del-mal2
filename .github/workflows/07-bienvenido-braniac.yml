@@ -29,3 +29,21 @@ jobs:
               issue_number: context.issue.number,
               body,
             });
+
+      - name: Enviar aviso por correo electrónico
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "[Brainiac] Nuevo issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}"
+          to: bpachecoalfaro@gmail.com
+          from: "Brainiac <${{ secrets.SMTP_USERNAME }}>"
+          body: |
+            Brainiac ha recibido un nuevo issue y lo está revisando.
+
+            Título: ${{ github.event.issue.title }}
+            Número: #${{ github.event.issue.number }}
+            Creado por: ${{ github.event.issue.user.login }}
+            Enlace: ${{ github.event.issue.html_url }}
