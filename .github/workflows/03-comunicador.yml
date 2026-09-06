@@ -38,12 +38,20 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Instalar el transmisor de la legion
+        run: sudo apt-get install -y cowsay
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
       - name: Imprimir inputs
         run: |
-          echo "Inputs: "
+          echo "=================================="
+          echo "      transmisor intercertapa     "
+          echo "=================================="
           echo ""
-          echo "Villano: ${{ inputs.villano }}"
-          echo "Villano: ${{ inputs.mensaje }}"
-          echo "Villano: ${{ inputs.prioridad }}"
+          echo "De : ${{ inputs.villano }}"
+          echo "Fecha: $(date -u +"%d/%m/%Y - %H:$M UTC")"
+          echo "====== Mensaje ======"
+          cowsay -f eyes "${{ inputs.mensaje}}"
+          echo ""
+          echo "--- ${{ inputs.villano }}"
+          echo "..."
