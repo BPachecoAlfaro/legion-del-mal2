@@ -1,0 +1,31 @@
+name: Brainiac revisa nuevos issues
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  responder-issue:
+    name: Responder al creador del issue
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Publicar respuesta de Brainiac
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = [
+              '🤖 **Brainiac ha recibido tu issue.**',
+              '',
+              'Tu issue está siendo revisado por Brainiac. Te informaremos aquí cuando tengamos novedades.',
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
