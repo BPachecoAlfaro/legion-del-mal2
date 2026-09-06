@@ -21,6 +21,15 @@ on:
         required: true
         default: "La mision fue un exito"
 
+      cow-characters:
+        description: "Elige un cow"
+        required: true
+        type: choice
+        options:
+          - eyes
+          - R2-D2
+          - banana
+
       prioridad:
         description: "nivel de prioridad?"
         required: true
@@ -41,7 +50,7 @@ jobs:
       - name: Instalar el transmisor de la legion
         run: sudo apt-get install -y cowsay
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Imprimir inputs
         run: |
           echo "=================================="
@@ -51,7 +60,7 @@ jobs:
           echo "De : ${{ inputs.villano }}"
           echo "Fecha: $(date -u +"%d/%m/%Y - %H:$M UTC")"
           echo "====== Mensaje ======"
-          cowsay -f eyes "${{ inputs.mensaje}}"
+          cowsay -f ${{ inputs.cow-characters }} "${{ inputs.mensaje}}"
           echo ""
           echo "--- ${{ inputs.villano }}"
           echo "..."
