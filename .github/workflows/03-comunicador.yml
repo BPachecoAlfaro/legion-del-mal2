@@ -16,6 +16,20 @@ on:
           - Joker
           - Lex Luthor2
 
+      mensaje:
+        description: "Mensaje para el consejo"
+        required: true
+        default: "La mision fue un exito"
+
+      prioridad:
+        description: "nivel de prioridad?"
+        required: true
+        type: choice
+        options:
+          - Normal
+          - Alta
+          - Critica
+
 jobs:
   # This workflow contains a single job called "build"
   transmitir-mensaje:
