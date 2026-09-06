@@ -27,7 +27,6 @@ on:
         type: choice
         options:
           - eyes
-          - R2-D2
           - banana
 
       prioridad:
