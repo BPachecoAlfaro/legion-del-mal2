@@ -1,0 +1,100 @@
+name: Crear Release desde un tag
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  crear-release:
+    name: Publicar Release y notas de cambios
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar historial completo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Crear o actualizar Release
+        uses: actions/github-script@v7
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        with:
+          script: |
+            const { execFileSync } = require('child_process');
+
+            const tag = process.env.TAG_NAME;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const git = (args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+
+            let previousTag = null;
+            try {
+              previousTag = git(['describe', '--tags', '--abbrev=0', `${tag}^`]);
+            } catch (_) {
+              // Este es el primer tag del repositorio.
+            }
+
+            const range = previousTag ? `${previousTag}..${tag}` : tag;
+            const commits = git([
+              'log', range,
+              '--no-merges',
+              '--pretty=format:- %h — %s (%an)',
+            ]) || '- No se encontraron commits adicionales.';
+
+            const changedFiles = git([
+              'diff', '--stat',
+              previousTag ? `${previousTag}..${tag}` : `${tag}^..${tag}`,
+            ]) || '- No se encontraron archivos modificados.';
+
+            const generated = await github.rest.repos.generateReleaseNotes({
+              owner,
+              repo,
+              tag_name: tag,
+              target_commitish: context.sha,
+            });
+
+            const body = [
+              `## Información de la versión`,
+              `- Tag: \`${tag}\``,
+              `- Tag anterior: ${previousTag ? `\`${previousTag}\`` : 'N/A (primera versión)'}`,
+              '',
+              '## Cambios incluidos',
+              generated.data.body || 'No se generaron notas automáticas.',
+              '',
+              '## Registro de commits',
+              commits,
+              '',
+              '## Archivos modificados',
+              '```text',
+              changedFiles,
+              '```',
+            ].join('\n');
+
+            const release = {
+              owner,
+              repo,
+              tag_name: tag,
+              name: generated.data.name || `Release ${tag}`,
+              body,
+              draft: false,
+              prerelease: tag.includes('-beta') || tag.includes('-rc') || tag.includes('-alpha'),
+            };
+
+            try {
+              const existing = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+              await github.rest.repos.updateRelease({
+                ...release,
+                release_id: existing.data.id,
+              });
+              core.info(`Release existente actualizado para ${tag}.`);
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.repos.createRelease(release);
+              core.info(`Release creado para ${tag}.`);
+            }
