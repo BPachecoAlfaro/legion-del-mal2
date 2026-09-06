@@ -27,7 +27,8 @@ on:
         type: choice
         options:
           - eyes
-          - banana
+          - dragon
+          - ghostbusters
 
       prioridad:
         description: "nivel de prioridad?"
