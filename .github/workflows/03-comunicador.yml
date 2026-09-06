@@ -40,3 +40,10 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
+      - name: Imprimir inputs
+        run: |
+          echo "Inputs: "
+          echo ""
+          echo "Villano: ${{ inputs.villano }}"
+          echo "Villano: ${{ inputs.mensaje }}"
+          echo "Villano: ${{ inputs.prioridad }}"
